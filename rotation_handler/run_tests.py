@@ -6,4 +6,4 @@ rh = RotationHandler()
 rh.handle_image_rotation('test_files/Landscape_2.jpg', 'test_files/Landscape_2_fixed.jpg')
 
 # PDF Test
-rh.handle_pdf_rotation('test_files/Get_Started_With_Smallpdf.pdf', 'test_files/Get_Started_With_Smallpdf_fixed.pdf')
+rh.handle_pdf_rotation('test_files/Get_Started_With_Smallpdf-rotated.pdf', 'test_files/Get_Started_With_Smallpdf_fixed.pdf')

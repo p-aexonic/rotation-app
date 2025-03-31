@@ -9,7 +9,6 @@ import os
 import logging
 from typing import Generator
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
 logging.basicConfig(level=logging.INFO)
 
 class RotationHandler:
@@ -56,13 +55,15 @@ class RotationHandler:
 
     def _detect_orientation(self, image: Image.Image) -> int:
         try:
-            osd = pytesseract.image_to_osd(image)
+            # Resize image for better OCR accuracy
+            resized = image.resize((image.width * 2, image.height * 2))
+            osd = pytesseract.image_to_osd(resized)
             for line in osd.splitlines():
                 if "Rotate:" in line:
                     return int(line.split(":")[-1].strip())
         except Exception as e:
             logging.warning(f"Orientation detection skipped: {e}")
-        return 0
+        return 0  # fallback: assume correct
 
     def _rotate_image(self, img: np.ndarray, angle: int) -> np.ndarray:
         if angle == 0:
@@ -110,9 +111,9 @@ class RotationHandler:
     def handle_pdf_rotation(self, input_pdf: str, output_pdf: str):
         try:
             processed_images = []
-            for img in self._pdf_to_images_generator(input_pdf):
+            for i, img in enumerate(self._pdf_to_images_generator(input_pdf)):
                 processed = self._process_image(img)
-                temp_file = "temp_page.jpg"
+                temp_file = f"temp_page_{i}.jpg"
                 processed.save(temp_file, "JPEG")
                 processed_images.append(temp_file)
 
@@ -124,5 +125,6 @@ class RotationHandler:
                     os.remove(temp_file)
 
             logging.info(f"Processed PDF saved to {output_pdf}")
+
         except Exception as e:
             logging.error(f"Failed to process PDF {input_pdf}: {e}")
